@@ -33,16 +33,17 @@ public class ForEach extends Interpreter {
 					newContext.merge(list.getObject(i));
 					Stepper stepper = new Stepper(webContext, map.getObject("steps"));
 					DataEntity out = stepper.exec(newContext);
-					if(out != null) {
-						if(out instanceof DataMap && correlation != null) {
+					if(correlation != null) {
+						if(out == null)
+							out = new DataMap();
+						if(out instanceof DataMap)
 							((DataMap)out).put(correlation, list.getObject(i).getString(correlation));
-						}
+					}
+					if(out != null) {
 						resultList.add(out);
 					}
 				} catch(Exception e) {
-					if(!ignoreException) {
-						throw new BRException("Error looping through list at item " + list.getObject(i).toString(0, true), e);
-					}
+					processException("Error looping through list at item " + list.getObject(i).toString(0, true), e);
 				}
 			}
 		} else {

@@ -2,6 +2,7 @@ package io.blackracoon;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,7 +14,6 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -39,7 +39,7 @@ public class Executor extends Thread {
 	public void run() {
 		if(map != null && map.containsKey("steps")) {
 			ChromeOptions options = new ChromeOptions();
-			options.addArguments(/*"--headless", */"--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors");
+			options.addArguments(/*"--headless",*/ "--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors");
 			driver = new ChromeDriver(options);
 			driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
@@ -53,15 +53,18 @@ public class Executor extends Thread {
 			Stepper stepper = new Stepper(driver, steps);
 			try {
 				result = stepper.exec(context);
-			} catch(Exception e) {
-				TakesScreenshot scrShot =((TakesScreenshot)driver);
-				File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
-			    Path srcPath = srcFile.toPath();
-			    Path copied = Paths.get("error_" + id + ".png");
-			    try {
-					Files.copy(srcPath, copied, StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e1) {}
-			    error = rollupExceptions(e);
+			} catch(BRException e) {
+				try {
+					TakesScreenshot scrShot =((TakesScreenshot)driver);
+					File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+				    Path srcPath = srcFile.toPath();
+				    Path copied = Paths.get("error_" + id + ".png");
+				    try {
+						Files.copy(srcPath, copied, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e1) {}
+				} catch(Exception e2) {}
+				
+			    error = e.rollupExceptions();
 				System.err.println(error);
 			}
 			
@@ -100,6 +103,7 @@ public class Executor extends Thread {
 						con.setRequestProperty("Authorization", callBackMap.getString("auth"));
 					}					
 					con.setDoOutput(true);
+					con.setDoInput(true);
 					OutputStream os = con.getOutputStream();
 					if(wrapper != null) 
 						wrapper.write(os);
@@ -107,38 +111,19 @@ public class Executor extends Thread {
 						((DataMap)result).write(os);
 					else if(result instanceof DataList) 
 						(new DataMap("result", result)).write(os);
-					DataMap resp = new DataMap(con.getInputStream());
-					System.out.println(resp);
+					InputStream is = con.getInputStream();
+					byte[] bytes = is.readAllBytes();
+					System.out.println(new String(bytes));
+					con.disconnect();
 				} catch(Exception e) {
 					System.err.println("Error calling back: " + e.getMessage());
 				}
-			} else {
-				System.out.println(result);
-			}
+			} 
+			System.out.println(result);
 			driver.close();
 		}
 	}
 	
-	protected String rollupExceptions(Throwable t) {
-		StringBuilder sb = new StringBuilder();
-		Throwable c = t;
-		while(c != null) {
-			if(sb.length() > 0)
-				sb.append(": ");
-			String msg = null;
-			if(c instanceof NoSuchElementException) {
-				msg = c.getMessage();
-				if(msg.indexOf("\n") > -1)
-					msg = msg.substring(0, msg.indexOf("\n")).trim();
-			} else if(c instanceof NullPointerException) {
-				msg = c.getMessage() + " [" + c.getStackTrace()[0].getFileName() + " at " + c.getStackTrace()[0].getLineNumber() + "]";
-			} else {
-				msg = c.getMessage();
-			}
-			sb.append(msg);
-			c = c.getCause();
-		}
-		return sb.toString();
-	}
+
 
 }

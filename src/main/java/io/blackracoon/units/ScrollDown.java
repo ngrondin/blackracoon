@@ -22,9 +22,7 @@ public class ScrollDown extends Interpreter {
 				executor.executeScript("window.scrollBy(0,500)");
 			}
 		} catch(Exception e) {
-			if(!ignoreException) {
-				throw new BRException("Error scrolling down", e);
-			}
+			processException("Error scrolling down", e);
 		}
 		return null;
 	}

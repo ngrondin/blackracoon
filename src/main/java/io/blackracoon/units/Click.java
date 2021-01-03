@@ -20,9 +20,7 @@ public class Click extends Interpreter {
 			WebElement element = webContext.findElement(By.xpath(resolveConfig("path", context)));
 			element.click();
 		} catch(Exception e) {
-			if(!ignoreException) {
-				throw new BRException("Error clicking", e);
-			}
+			processException("Error clicking", e);
 		}
 		return null;
 	}

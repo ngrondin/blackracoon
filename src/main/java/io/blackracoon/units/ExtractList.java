@@ -61,9 +61,7 @@ public class ExtractList extends Interpreter {
 				
 			}
 		} catch(Exception e) {
-			if(!ignoreException) {
-				throw new BRException("Error extracting list", e);
-			}
+			processException("Error extracting list", e);
 		}
 		return resultList;
 	}

@@ -29,6 +29,15 @@ public abstract class Interpreter {
 		}
 		return str;
 	}
+	
+	protected void processException(String msg, Exception e) throws BRException {
+		BRException bre = new BRException(msg, e);
+		if(ignoreException) {
+			System.out.println("Ignored exception: " + bre.rollupExceptions());
+		} else {
+			throw bre;
+		}
+	}
 		
 	public abstract DataEntity exec(DataMap context) throws BRException;
 }

@@ -5,6 +5,7 @@ import java.awt.datatransfer.DataFlavor;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import io.blackracoon.BRException;
@@ -41,15 +42,14 @@ public class ExtractData extends Interpreter {
 				}
 			} else if(valueType.equals("clipboard")) {
 				value = new DataLiteral(Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
+			} else if(valueType.equals("url")) {
+				value = new DataLiteral(((WebDriver)webContext).getCurrentUrl());
 			}
 			
 			return new DataMap(name, value);
 		} catch(Exception e) {
-			if(!ignoreException) {
-				throw new BRException("Error extracting data", e);
-			} else {
-				return null;
-			}
+			processException("Error extracting data", e);
+			return null;
 		}
 	}
 

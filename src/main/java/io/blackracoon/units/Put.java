@@ -27,9 +27,7 @@ public class Put extends Interpreter {
 					context.put(name, de);
 				}
 			} catch(Exception e) {
-				if(!ignoreException) {
-					throw new BRException("Error putting data", e);
-				}
+				processException("Error putting data", e);
 			}
 		} else {
 			throw new BRException("Error putting data: no data to put");

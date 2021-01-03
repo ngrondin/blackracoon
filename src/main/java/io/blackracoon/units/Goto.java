@@ -19,9 +19,7 @@ public class Goto extends Interpreter {
 			try {
 				((WebDriver)webContext).get(resolveConfig("url", context));
 			} catch(Exception e) {
-				if(!ignoreException) {
-					throw new BRException("Error going to url", e);
-				}
+				processException("Error going to url", e);
 			}
 		} else {
 			throw new BRException("Error going to url: goto can only be used in the top web context");

@@ -38,8 +38,10 @@ public class Stepper extends Interpreter {
 				inter = new ScrollDown(webContext, stepMap.getObject("scrolldown")); 
 			} else if(stepMap.containsKey("put")) {
 				inter = new Put(webContext, stepMap.getObject("put")); 
-			} else if(stepMap.containsKey("switchnewtab")) {
-				inter = new SwitchNewTab(webContext, stepMap.getObject("switchnewtab")); 
+			} else if(stepMap.containsKey("switchtab")) {
+				inter = new SwitchTab(webContext, stepMap.getObject("switchtab")); 
+			} else if(stepMap.containsKey("assert")) {
+				inter = new Assert(webContext, stepMap.getObject("assert")); 
 			} 
 			if(inter != null) {
 				try {
@@ -58,9 +60,7 @@ public class Stepper extends Interpreter {
 						}
 					}
 				} catch(Exception e) {
-					if(!ignoreException) {
-						throw new BRException("Error executing step " + step, e);
-					}
+					processException("Error executing step " + step, e);
 				}
 			} else {
 				throw new BRException("Error going through steps: no interpreter for step " + step);

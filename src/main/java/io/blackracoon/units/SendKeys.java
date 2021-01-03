@@ -23,9 +23,7 @@ public class SendKeys extends Interpreter {
 			if(map.getBoolean("typeenter"))
 				element.sendKeys(Keys.ENTER);
 		} catch(Exception e) {
-			if(!ignoreException) {
-				throw new BRException("Error sending keys", e);
-			}
+			processException("Error sending keys", e);
 		}
 		return null;
 	}
