@@ -17,9 +17,9 @@ public class Server extends NanoHTTPD {
         if (session.getMethod() == Method.POST) {
         	try {
         		DataMap map = new DataMap(session.getInputStream());
-        		Executor executor = new Executor(map);
-        		executor.start();
-                return newFixedLengthResponse(Response.Status.OK, "application/json", "{\"result\":\"ok\", \"id\":\"" + executor.id + "\"}");
+        		Executor executor = Executor.getSingleton();
+        		String id = executor.schedule(map);
+                return newFixedLengthResponse(Response.Status.OK, "application/json", "{\"result\":\"ok\", \"job\":\"" + id + "\"}");
             } catch (Exception e) {
             	return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "application/json", "{\"result\":\"error\",\"message\":\"" + e.getMessage() + "\"");
             }
@@ -28,9 +28,11 @@ public class Server extends NanoHTTPD {
           "The requested resource does not exist");
     }
     
-    public static void main(String[] args ) throws IOException {
+    public static void main(String[] args) throws IOException {
 		String chromeDriverPath = args[0];
 		System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+		if(args.length > 1 && args[1].equalsIgnoreCase("head"))
+			Executor.headless = false;
         new Server();
     }
 }

@@ -2,7 +2,6 @@ package io.blackracoon.units;
 
 import java.util.List;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
@@ -20,7 +19,7 @@ public class ExtractList extends Interpreter {
 
 	public DataEntity exec(DataMap context) throws BRException {
 		DataList resultList = new DataList();
-		WebElement countElement = map.containsKey("countpath") ? webContext.findElement(By.xpath(resolveConfig("countpath", context))) : null;
+		WebElement countElement = map.containsKey("countpath") ? getExactlyOneElement("countpath", context) : null;
 		int maxPages = map.containsKey("maxpages") ? map.getNumber("maxpages").intValue() : 1;
 		int page = 0;
 		boolean noMorePages = false;
@@ -30,16 +29,16 @@ public class ExtractList extends Interpreter {
 				totalCount = Integer.parseInt(countElement.getText()); 
 			}
 		} catch(Exception e) {}
-		boolean scrollDown = map.containsKey("scrolldown") ? map.getBoolean("scrolldown") : false;
+		DataMap scroll = map.getObject("scroll");
 		
 		try {
 			if(totalCount != 0) {
 				while(!noMorePages && page < maxPages) {
-					if(scrollDown) {
-						ScrollDown sd = new ScrollDown(webContext, null);
+					if(scroll != null) {
+						ScrollDown sd = new ScrollDown(webContext, scroll);
 						sd.exec(context);
 					}
-					List<WebElement> elements = webContext.findElements(By.xpath(resolveConfig("itemspath", context)));
+					List<WebElement> elements = getElements("itemspath", context);
 					for(WebElement element: elements) {
 						DataMap resultObject = new DataMap();
 						DataList dataConfigList = map.getList("data");
@@ -51,7 +50,7 @@ public class ExtractList extends Interpreter {
 						resultList.add(resultObject);
 					}
 					try {
-						WebElement nextElement = map.containsKey("nextpath") ? webContext.findElement(By.xpath(resolveConfig("nextpath", context))) : null;
+						WebElement nextElement = getExactlyOneElement("nextpath", context);
 						nextElement.click();
 						page++;
 					} catch(Exception e) {

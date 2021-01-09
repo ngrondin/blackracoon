@@ -1,6 +1,5 @@
 package io.blackracoon.units;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
@@ -17,7 +16,7 @@ public class Click extends Interpreter {
 
 	public DataEntity exec(DataMap context) throws BRException {
 		try {
-			WebElement element = webContext.findElement(By.xpath(resolveConfig("path", context)));
+			WebElement element = getExactlyOneElement("path", context);
 			element.click();
 		} catch(Exception e) {
 			processException("Error clicking", e);

@@ -10,7 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -26,24 +28,49 @@ import io.firebus.utils.DataList;
 import io.firebus.utils.DataMap;
 
 public class Executor extends Thread {
-	protected DataMap map;
-	protected WebDriver driver;
-	public String id;
-
 	
-	public Executor(DataMap m) {
-		map = m;
-		id = UUID.randomUUID().toString();
+	protected static Executor singleton;
+	protected static boolean headless = true;
+	
+	List<Entry> entries;
+	protected boolean started;
+
+	public static Executor getSingleton() {
+		if(singleton == null) {
+			singleton = new Executor();
+		}
+		return singleton;
 	}
 	
-	public void run() {
+	public Executor() {
+		entries = new ArrayList<Entry>();
+		started = false;
+	}
+	
+	public String schedule(DataMap map) {
+		String id = UUID.randomUUID().toString();
+		Entry entry = new Entry(id, map);
+		entries.add(entry);
+		if(!started) {
+			started = true;
+			start();
+		}
+		return id;
+	}
+	
+	protected void execute(String id, DataMap map) {
+		WebDriver driver = null;
 		if(map != null && map.containsKey("steps")) {
 			ChromeOptions options = new ChromeOptions();
-			options.addArguments(/*"--headless",*/ "--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors");
+			options.addArguments("--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors");
+			if(headless) 
+				options.addArguments("--headless");
 			driver = new ChromeDriver(options);
 			driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
-			System.out.println("Running");
+			System.out.println("Running " + id);
+			System.out.println(map);
+
 			DataMap context = map.getObject("context");
 			if(context == null)
 				context = new DataMap();
@@ -119,9 +146,21 @@ public class Executor extends Thread {
 					System.err.println("Error calling back: " + e.getMessage());
 				}
 			} 
+			System.out.println("Result of " + id);
 			System.out.println(result);
+			
 			driver.close();
+			driver.quit();
 		}
+	}
+	
+	public void run() {
+		while(entries.size() > 0) {
+			Entry entry = entries.get(0);
+			execute(entry.id, entry.map);
+			entries.remove(0);
+		}
+		singleton = null;
 	}
 	
 

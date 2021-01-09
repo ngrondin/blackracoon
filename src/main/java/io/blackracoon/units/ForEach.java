@@ -43,7 +43,7 @@ public class ForEach extends Interpreter {
 						resultList.add(out);
 					}
 				} catch(Exception e) {
-					processException("Error looping through list at item " + list.getObject(i).toString(0, true), e);
+					processException("Error looping through list at item " + i + (correlation != null ? " (" + correlation + "=" + list.getObject(i).getString(correlation) + ")" : ""), e);
 				}
 			}
 		} else {

@@ -1,6 +1,12 @@
 package io.blackracoon;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebElement;
 
 import io.firebus.utils.DataEntity;
 import io.firebus.utils.DataMap;
@@ -28,6 +34,31 @@ public abstract class Interpreter {
 			}
 		}
 		return str;
+	}
+	
+	protected List<WebElement> getElements(String pathkey, DataMap context) throws BRException {
+		List<WebElement> elements = null;
+		if(map.containsKey(pathkey)) {
+			try {
+				elements = webContext.findElements(By.xpath(resolveConfig(pathkey, context)));
+			} catch(NoSuchElementException e) {
+				elements = new ArrayList<WebElement>();
+			} catch(Exception e) {
+				throw new BRException("Error getting elements", e);
+			}
+		}
+		return elements;
+	}
+	
+	protected WebElement getExactlyOneElement(String pathkey, DataMap context) throws BRException {
+		List<WebElement> elements = getElements(pathkey, context);
+		if(elements.size() == 0) {
+			throw new BRException("No element found");
+		} else if(elements.size() == 1) {
+			return elements.get(0);
+		} else {
+			throw new BRException("More than one element found");
+		}
 	}
 	
 	protected void processException(String msg, Exception e) throws BRException {

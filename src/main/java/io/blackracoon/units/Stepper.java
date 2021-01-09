@@ -42,6 +42,8 @@ public class Stepper extends Interpreter {
 				inter = new SwitchTab(webContext, stepMap.getObject("switchtab")); 
 			} else if(stepMap.containsKey("assert")) {
 				inter = new Assert(webContext, stepMap.getObject("assert")); 
+			} else if(stepMap.containsKey("if")) {
+				inter = new If(webContext, stepMap.getObject("if")); 
 			} 
 			if(inter != null) {
 				try {

@@ -18,8 +18,19 @@ public class ScrollDown extends Interpreter {
 		try {Thread.sleep(1000);} catch (InterruptedException e) {}
 		JavascriptExecutor executor = ((JavascriptExecutor) webContext);
 		try {
-			while((Long)executor.executeScript("return window.scrollY;") < (Long)executor.executeScript("return document.body.offsetHeight;") - (Long)executor.executeScript("return window.innerHeight;") - 10) {
-				executor.executeScript("window.scrollBy(0,500)");
+			String to = map.getString("to");
+			long delay = map.containsKey("delay") ? map.getNumber("delay").longValue() : 100;
+			if(to.equalsIgnoreCase("bottom")) {
+				while((Long)executor.executeScript("return window.scrollY;") < (Long)executor.executeScript("return document.body.offsetHeight;") - (Long)executor.executeScript("return window.innerHeight;") - 10) {
+					executor.executeScript("window.scrollBy(0,500)");
+					Thread.sleep(delay);
+				}
+			} else {
+				int toInt = Integer.parseInt(to);
+				for(int i = 0; i < (toInt / 500); i++) {
+					executor.executeScript("window.scrollBy(0,500)");
+					Thread.sleep(delay);
+				}
 			}
 		} catch(Exception e) {
 			processException("Error scrolling down", e);

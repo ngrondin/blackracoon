@@ -1,6 +1,6 @@
 package io.blackracoon;
 
-import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriverException;
 
 public class BRException extends Exception{
 	private static final long serialVersionUID = 1L;
@@ -21,7 +21,7 @@ public class BRException extends Exception{
 			if(sb.length() > 0)
 				sb.append(": ");
 			String msg = null;
-			if(c instanceof NoSuchElementException) {
+			if(c instanceof WebDriverException) {
 				msg = c.getMessage();
 				if(msg.indexOf("\n") > -1)
 					msg = msg.substring(0, msg.indexOf("\n")).trim();

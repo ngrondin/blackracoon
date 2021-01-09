@@ -3,7 +3,6 @@ package io.blackracoon.units;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -22,9 +21,7 @@ public class ExtractData extends Interpreter {
 
 	public DataEntity exec(DataMap context)  throws BRException {
 		try {
-			WebElement element = null;
-			if(map.containsKey("path"))
-				element = webContext.findElement(By.xpath(resolveConfig("path", context)));
+			WebElement element = getExactlyOneElement("path", context);
 			String name = resolveConfig("name", context);
 			String valueType = resolveConfig("value", context);
 			if(valueType == null)

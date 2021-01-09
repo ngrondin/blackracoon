@@ -2,7 +2,6 @@ package io.blackracoon.units;
 
 import java.util.List;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 
@@ -19,7 +18,7 @@ public class ExtractFirstOfList extends Interpreter {
 	}
 
 	public DataEntity exec(DataMap context) throws BRException {
-		WebElement countElement = map.containsKey("countpath") ? webContext.findElement(By.xpath(resolveConfig("countpath", context))) : null;
+		WebElement countElement = map.containsKey("countpath") ? getExactlyOneElement("countpath", context) : null;
 		int totalCount = -1;
 		try {
 			if(countElement != null) {
@@ -34,7 +33,7 @@ public class ExtractFirstOfList extends Interpreter {
 					ScrollDown sd = new ScrollDown(webContext, null);
 					sd.exec(context);
 				}
-				List<WebElement> elements = webContext.findElements(By.xpath(resolveConfig("itemspath", context)));
+				List<WebElement> elements = getElements("itemspath", context);
 				if(elements != null && elements.size() > 0) {
 					WebElement element = elements.get(0);
 					DataMap resultObject = new DataMap();
