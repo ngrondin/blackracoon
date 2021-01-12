@@ -28,22 +28,23 @@ public class ForEach extends Interpreter {
 		
 		if(list != null) {
 			for(int i = 0; i < list.size(); i++) {
+				DataMap newContext = (DataMap)context.getCopy();
+				newContext.merge(list.getObject(i));
+				Stepper stepper = new Stepper(webContext, map.getObject("steps"));
+				DataEntity out = null;
 				try {
-					DataMap newContext = (DataMap)context.getCopy();
-					newContext.merge(list.getObject(i));
-					Stepper stepper = new Stepper(webContext, map.getObject("steps"));
-					DataEntity out = stepper.exec(newContext);
-					if(correlation != null) {
-						if(out == null)
-							out = new DataMap();
-						if(out instanceof DataMap)
-							((DataMap)out).put(correlation, list.getObject(i).getString(correlation));
-					}
-					if(out != null) {
-						resultList.add(out);
-					}
+					out = stepper.exec(newContext);
 				} catch(Exception e) {
 					processException("Error looping through list at item " + i + (correlation != null ? " (" + correlation + "=" + list.getObject(i).getString(correlation) + ")" : ""), e);
+				}
+				if(correlation != null) {
+					if(out == null)
+						out = new DataMap();
+					if(out instanceof DataMap)
+						((DataMap)out).put(correlation, list.getObject(i).getString(correlation));
+				}
+				if(out != null) {
+					resultList.add(out);
 				}
 			}
 		} else {

@@ -21,7 +21,6 @@ public class ExtractData extends Interpreter {
 
 	public DataEntity exec(DataMap context)  throws BRException {
 		try {
-			WebElement element = getExactlyOneElement("path", context);
 			String name = resolveConfig("name", context);
 			String valueType = resolveConfig("value", context);
 			if(valueType == null)
@@ -29,6 +28,7 @@ public class ExtractData extends Interpreter {
 			DataLiteral value = null;
 			
 			if(valueType.equals("text") || valueType.equals("link")) {
+				WebElement element = getExactlyOneElement("path", context);
 				if(element != null) {
 					if(valueType.equalsIgnoreCase("text"))
 						value = new DataLiteral(element.getText());
